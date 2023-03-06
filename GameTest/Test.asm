@@ -7,7 +7,12 @@ jmp preludio
 
 x_pos db 0
 y_pos db 0
+caso db 6
 
+end db "==================",0dh,0ah
+    db "==== Ganastes ====",0dh,0ah
+    db "==================$"
+	
 msg db "==== Bienvenido a Mobile maze ====", 0dh,0ah
 	db "Mobile maze es un juego donde una nave tendra que esquivar una serie", 0dh,0ah
 	db "de obstaculos para llegar a su destino final de manera segura.", 0dh,0ah
@@ -45,11 +50,11 @@ maze db "                                      ", 0dh,0ah
 	db "==    |        |             |      ==", 0dh,0ah
 	db "======================================$"   
 	
-point0 db "Puntuaje = 0 $"
-point2 db "Puntuaje = 2 $"
-point4 db "Puntuaje = 4 $"
-point5 db "Puntuaje = 5 $"
-point9 db "Puntuaje = 9 $"
+point0 db "Puntuaje = 0$"
+point2 db "Puntuaje = 2$"
+point4 db "Puntuaje = 4$"
+point5 db "Puntuaje = 5$"
+point9 db "Puntuaje = 9$"
 
 preludio:
     ; Print del mensaje de inicio:
@@ -66,8 +71,7 @@ start:
     mov al, 03h
     mov ah, 0
     int 10h
-    
-    
+     
     mov dx, offset point0
     mov ah, 9 
     int 21h
@@ -81,6 +85,7 @@ start:
 	mov bh, 0
 	mov ah, 2
 	int 10h
+	
 	jmp move_loop
     
     
@@ -106,9 +111,19 @@ stop:
    int 16h
    cmp al, 'l'
    je move_loop
-   jmp stop  
-move_up:
+   jmp stop
 
+print:
+    ; Print '*' en la nueva posicion
+    mov al, '*'
+    mov ah, 09h
+    mov bl, 0eh 
+    mov cx, 1   
+    int 10h
+    jmp move_loop 
+
+move_up:
+    
     ; Delete "*" de la posicion actual
     mov ah, 0Eh
     mov al, ' '
@@ -119,15 +134,8 @@ move_up:
     mov ah, 2
     mov bh, 0
     int 10h
-
-    ; Print '*' en la nueva posicion
-    mov al, '*'
-    mov ah, 09h
-    mov bl, 0eh 
-    mov cx, 1   
-    int 10h
+    jmp print
     
-    jmp move_loop
 move_left:
       
     mov ah, 0Eh
@@ -139,15 +147,19 @@ move_left:
     mov ah, 2
     mov bh, 0
     int 10h
+    
+    jmp print
 
-  ; Print '*' en la nueva posicion
-    mov al, '*'
-    mov ah, 09h
-    mov bl, 0eh 
-    mov cx, 1   
-    int 10h
-    jmp move_loop
 move_right:
+    
+    mov ah, 03h
+    mov bh, 0     
+    int 10h         
+    mov x_pos, dl   
+    mov y_pos, dh
+    
+    cmp dl,caso
+    je termina
     
     mov ah, 0Eh
     mov al, ' '
@@ -158,14 +170,7 @@ move_right:
     mov ah, 2
     mov bh, 0
     int 10h
-    
-    ; Print '*' en la nueva posicion
-    mov al, '*'
-    mov ah, 09h
-    mov bl, 0eh 
-    mov cx, 1   
-    int 10h
-    jmp move_loop
+    jmp print
 
 move_down:
     mov ah, 0Eh
@@ -178,19 +183,30 @@ move_down:
     mov bh, 0
     int 10h
 
-    ; Print '*' en la nueva posicion
-    mov al, '*'
-    mov ah, 09h
-    mov bl, 0eh 
-    mov cx, 1   
-    int 10h  
+    jmp print
+
+termina:
+    cmp caso,6
+    je caso6
     
-    mov ah, 03h
-    mov bh, 0     
-    int 10h         
-    mov y_pos, dl   
-    mov x_pos, dh
+    cmp caso,15
+    je caso15
     
+    cmp caso,23
+    je caso23
+    
+    cmp caso,29
+    je caso29
+    
+    mov ah, 00h
+    mov al, 03h 
+    int 10h
+    
+    mov dx, offset end
+    mov ah, 9 
+    int 21h
+caso6:
+    mov caso, 15
     ;Movemos el curso a la posicion 0
     mov dh, 0
 	mov dl, 0
@@ -201,12 +217,65 @@ move_down:
 	mov dx, offset point2
     mov ah, 9 
     int 21h
+    jmp addPoint
     
-    mov dh, x_pos
-	mov dl, y_pos
+caso15:
+    mov caso, 23
+    ;Movemos el curso a la posicion 0
+    mov dh, 0
+	mov dl, 0
 	mov bh, 0
 	mov ah, 2
 	int 10h
 	
-    jmp move_loop
+	mov dx, offset point4
+    mov ah, 9 
+    int 21h
+    jmp addPoint
+    
+caso23:
+    mov caso, 29
+    ;Movemos el curso a la posicion 0
+    mov dh, 0
+	mov dl, 0
+	mov bh, 0
+	mov ah, 2
+	int 10h
+	
+	mov dx, offset point5
+    mov ah, 9 
+    int 21h
+    jmp addPoint
+    
+caso29:
+    mov caso, 36
+    ;Movemos el curso a la posicion 0
+    mov dh, 0
+	mov dl, 0
+	mov bh, 0
+	mov ah, 2
+	int 10h
+	
+	mov dx, offset point9
+    mov ah, 9 
+    int 21h
+    jmp addPoint
+    
+addPoint:
+    mov dh, y_pos
+	mov dl, x_pos
+	mov bh, 0
+	mov ah, 2
+	int 10h
+	
+	mov ah, 0Eh
+    mov al, ' '
+    int 10h
+    
+    ; Move cursor right 1 column
+    inc dl
+    mov ah, 2
+    mov bh, 0
+    int 10h  
+    jmp print     
 ret   
