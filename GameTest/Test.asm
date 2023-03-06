@@ -8,8 +8,9 @@ jmp preludio
 x_pos db 0
 y_pos db 0
 caso db 6
+endGame db 0
 
-end db "==================",0dh,0ah
+endTitle db "==================",0dh,0ah
     db "==== Ganastes ====",0dh,0ah
     db "==================$"
 	
@@ -36,18 +37,36 @@ maze db "                                      ", 0dh,0ah
     db "                                      ", 0dh,0ah 
     db "======================================", 0dh,0ah
 	db "==    |        |       |     |      ==", 0dh,0ah
-	db "==    |        |       |     |      ==", 0dh,0ah
-	db "==    |        |       |     |      ==", 0dh,0ah
+	db "==    |        -       |     |      ==", 0dh,0ah
+	db "==    |        |       | -   -      ==", 0dh,0ah
 	db "==    |        |       |            ==", 0dh,0ah
-	db "==    |                |            ==", 0dh,0ah
-	db "                       |     |        ", 0dh,0ah
+	db "==  - |     ---     -- |     -      ==", 0dh,0ah
+	db "     -                 |     |        ", 0dh,0ah
 	db "               |       |     |        ", 0dh,0ah
-	db "==    |        |       |     |      ==", 0dh,0ah
-	db "==    |        |       |            ==", 0dh,0ah
-	db "==    |        |       |     |      ==", 0dh,0ah
+	db "==    |        |  ---  |     |      ==", 0dh,0ah
+	db "==    |        -       |            ==", 0dh,0ah
+	db "== -  |  ---   | ---   |     |      ==", 0dh,0ah
     db "==    |        |       |     |      ==", 0dh,0ah
-	db "==    |        |                    ==", 0dh,0ah
+	db "==    -        |     --             ==", 0dh,0ah
+	db "==    |        |             -      ==", 0dh,0ah
+	db "======================================$"
+	
+maze2 db "                                      ", 0dh,0ah  
+    db "                                      ", 0dh,0ah 
+    db "======================================", 0dh,0ah
 	db "==    |        |             |      ==", 0dh,0ah
+	db "==    |        | ---   |     |      ==", 0dh,0ah
+	db "== ---|        |     - |     |      ==", 0dh,0ah
+	db "==    |        -       -     -      ==", 0dh,0ah
+	db "==    |  ---        -- |            ==", 0dh,0ah
+	db "      |        -       |     |        ", 0dh,0ah
+	db "               |       |     |        ", 0dh,0ah
+	db "==    |        |  --   | --  |      ==", 0dh,0ah
+	db "==    |        |       |            ==", 0dh,0ah
+	db "== -- |        |       |     |      ==", 0dh,0ah
+    db "==    | ----   -       |     |      ==", 0dh,0ah
+	db "==    |        |       | ---        ==", 0dh,0ah
+	db "==    |        |    ---|     |      ==", 0dh,0ah
 	db "======================================$"   
 	
 point0 db "Puntuaje = 0$"
@@ -74,7 +93,7 @@ start:
     mov ah, 0
     int 10h
     
-    ; Ponemos los marcadores y el mazo
+    ;Ponemos los marcadores, el mazo y el nivel
     mov dx, offset point0
     mov ah, 9 
     int 21h
@@ -110,15 +129,19 @@ move_loop:
     cmp al, 'l'
     je stop
     cmp al, 'r'
-    je start
+    je reset
     jmp move_loop; Si no es ninguna tecla de flecha, volver a leer la tecla 
 
+reset:
+    mov caso, 6
+    jmp start
+
 stop:     
-   mov ah, 0 
-   int 16h
-   cmp al, 'l'
-   je move_loop
-   jmp stop
+    mov ah, 0 
+    int 16h
+    cmp al, 'l'
+    je move_loop
+    jmp stop
 
 print:
     ; Print '*' en la nueva posicion
@@ -158,7 +181,7 @@ move_left:
     mov al, ' '
     int 10h
     
-  ; Move cursor left 1 column
+    ; Move cursor left 1 column
     dec dl
     mov ah, 2
     mov bh, 0
@@ -223,18 +246,49 @@ termina:
     cmp caso,29
     je caso29
     
-    mov ah, 00h
-    mov al, 03h 
-    int 10h
+    cmp endGame,1
+    je finish
     
-    mov dx, offset end
+    mov al, 03h
+    mov ah, 0
+    int 10h    
+    
+    mov caso, 6
+    mov endGame, 1
+    
+    ;Ponemos los marcadores, el mazo y el nivel
+    mov dx, offset point0
     mov ah, 9 
     int 21h
     
-    ; Esperar a que presione una tecla:
+    mov dx, offset nivel2
+    mov ah, 9 
+    int 21h
+    
+    mov dx, offset maze2
+    mov ah, 9 
+    int 21h
+    
+    mov dh, 8
+	mov dl, 0
+	mov bh, 0
+	mov ah, 2
+	int 10h
+	
+	jmp move_loop
+finish:
+    
+    mov al, 03h
+    mov ah, 0
+    int 10h
+    
+    mov dx, offset endTitle
+    mov ah, 9 
+    int 21h
+    
     mov ah, 00h
     int 16h
-    jmp start
+    jmp reset
 caso6:
     mov caso, 15
     ;Movemos el curso a la posicion 0
