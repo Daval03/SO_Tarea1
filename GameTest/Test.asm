@@ -86,7 +86,7 @@ start:
     
 move_loop:
     mov ah, 0    ;Servicio de lectura de teclado
-    int 16h      ;Llamar a la interrupción de teclado
+    int 16h      ;Llamar a la interrupcion de teclado
     cmp al,'w'   ;Tecla de flecha hacia arriba
     je move_up   ;Si es la tecla de flecha hacia arriba, saltar a move_up
     cmp al, 'a'  ;Tecla de flecha hacia la izquierda
@@ -108,17 +108,19 @@ stop:
    je move_loop
    jmp stop  
 move_up:
+
+    ; Delete "*" de la posicion actual
     mov ah, 0Eh
     mov al, ' '
     int 10h
     
-    ; Move cursor up one row
+    ; Move cursor up 1 row
     dec dh
     mov ah, 2
     mov bh, 0
     int 10h
 
-    ; Print the letter '*' in the new cursor position
+    ; Print '*' en la nueva posicion
     mov al, '*'
     mov ah, 09h
     mov bl, 0eh 
@@ -132,13 +134,13 @@ move_left:
     mov al, ' '
     int 10h
     
-  ; Move cursor left one column
+  ; Move cursor left 1 column
     dec dl
     mov ah, 2
     mov bh, 0
     int 10h
 
-  ; Print the letter '*' in the new cursor position
+  ; Print '*' en la nueva posicion
     mov al, '*'
     mov ah, 09h
     mov bl, 0eh 
@@ -151,13 +153,13 @@ move_right:
     mov al, ' '
     int 10h
     
-    ; Move cursor right one column
+    ; Move cursor right 1 column
     inc dl
     mov ah, 2
     mov bh, 0
     int 10h
     
-    ; Print the letter '*' in the new cursor position
+    ; Print '*' en la nueva posicion
     mov al, '*'
     mov ah, 09h
     mov bl, 0eh 
@@ -170,13 +172,13 @@ move_down:
     mov al, ' '
     int 10h
 
-    ; Move cursor down one row
+    ; Move cursor down 1 row
     inc dh
     mov ah, 2
     mov bh, 0
     int 10h
 
-    ; Print the letter '*' in the new cursor position
+    ; Print '*' en la nueva posicion
     mov al, '*'
     mov ah, 09h
     mov bl, 0eh 
