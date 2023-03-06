@@ -55,6 +55,8 @@ point2 db "Puntuaje = 2$"
 point4 db "Puntuaje = 4$"
 point5 db "Puntuaje = 5$"
 point9 db "Puntuaje = 9$"
+nivel1 db "  Nivel: Facil$"
+nivel2 db "  Nivel: Dificil$"
 
 preludio:
     ; Print del mensaje de inicio:
@@ -67,12 +69,17 @@ preludio:
     int 16h
 
 start: 
-    
+    ; Ponemos la pantalla
     mov al, 03h
     mov ah, 0
     int 10h
-     
+    
+    ; Ponemos los marcadores y el mazo
     mov dx, offset point0
+    mov ah, 9 
+    int 21h
+    
+    mov dx, offset nivel1
     mov ah, 9 
     int 21h
     
@@ -123,6 +130,15 @@ print:
     jmp move_loop 
 
 move_up:
+    ; Obtenemos la posicion del cursor
+    mov ah, 03h
+    mov bh, 0     
+    int 10h         
+    mov x_pos, dl   
+    mov y_pos, dh
+    
+    cmp dh,3
+    je move_loop
     
     ; Delete "*" de la posicion actual
     mov ah, 0Eh
@@ -173,6 +189,15 @@ move_right:
     jmp print
 
 move_down:
+    mov ah, 03h
+    mov bh, 0     
+    int 10h         
+    mov x_pos, dl   
+    mov y_pos, dh
+    
+    cmp dh,15
+    je move_loop 
+    
     mov ah, 0Eh
     mov al, ' '
     int 10h
@@ -205,6 +230,11 @@ termina:
     mov dx, offset end
     mov ah, 9 
     int 21h
+    
+    ; Esperar a que presione una tecla:
+    mov ah, 00h
+    int 16h
+    jmp start
 caso6:
     mov caso, 15
     ;Movemos el curso a la posicion 0
